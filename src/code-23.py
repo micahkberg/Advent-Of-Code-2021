@@ -94,7 +94,7 @@ def dijkstra(graph, start_vertex):
             pass
 
 
-#dijkstra(vertices, begin_arrangement)
+dijkstra(vertices, begin_arrangement)
 print("Finished")
 
 path_blocked(begin_arrangement,0,12)
