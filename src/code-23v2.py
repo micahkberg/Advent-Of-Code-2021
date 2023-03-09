@@ -39,14 +39,17 @@ energy_consumption = {"A": 1, "B": 10, "C": 100, "D": 1000}
 # i am only including locations where creatures could come to rest
 # seemed just as easy to type it up as to automate lol
 part_1_edges = {"A2": {"A1": 1}, "B2": {"B1": 1},
+                "C2": {"C1": 1}, "D2": {"D1": 2},
                 "A1": {"A2": 1, "L1": 2, "AB": 2},
                 "B1": {"B2": 1, "AB": 2, "BC": 2},
-                "C2": {"C1": 1}, "D2": {"D1": 2},
                 "C1": {"C2": 1, "BC": 2, "CD": 2},
                 "D1": {"D2": 1, "CD": 2, "R1": 2},
                 "L1": {"L2": 1, "AB": 2, "A1": 2},
-                "L2": {"L1": 1}, "R2": {"R1": 1},
                 "R1": {"R2": 1, "CD": 2, "D1": 2},
+                "L2": {"L1": 1}, "R2": {"R1": 1},
+                "AB": {"A1": 2, "L1": 2, "B1": 2, "BC": 2},
+                "BC": {"B1": 2, "AB": 2, "C1": 2, "CD": 2},
+                "CD": {"C1": 2, "BC": 2, "D1": 2, "R1": 2}
                 }
 
 part_1_locations = {i: None for i in part_1_edges.keys()}
@@ -60,6 +63,8 @@ for char in part_1_input:
         letter_i = (letter_i+1) % 4
         if letter_i == 0:
             num = "2"
+
+
 
 
 
