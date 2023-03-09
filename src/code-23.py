@@ -63,22 +63,17 @@ def get_new_positions(permutation):
         if permutation[index]: # for each not None char in permutation
             char = permutation[index]
             if index<8: # for the guys in the holes already
-                if index%2==1 and permutation(index-1): # trapped under another guy
+                if index%2==1 and permutation[index-1]: # trapped under another guy
                     continue
                 new_spots = range(8,15)
                 for spot in new_spots:
                     if not permutation[spot] and not path_blocked(permutation, index, spot):
-                        new_position = permutation.copy()
+                        new_position = list(permutation)
                         new_position[index] = None
                         new_position[spot]
             else: # for guys in hallways
                 if not permutation[home_indices[permutation[index]][0]]:
                     pass
-
-
-
-
-
 
 
 def dijkstra(graph, start_vertex):
