@@ -94,6 +94,29 @@ class CaveSystem:
         self.cave_map = edges
         self.creatures = creature_dict
 
+    def at_home(self, point):
+        """Looks at a point to see if its in its final resting place"""
+        creature = self.creatures[point]
+        col = point[0]
+        depth = point[1]
+        if not creature or col != creature or depth in LETTERS:
+            # if the tile is empty OR
+            # if col doesn't match creature OR
+            # if the depth is actually ABCD (ie in hallway)
+            # then not at rest
+            return False
+        home_spot_below = col + str(int(depth)+1)
+        if home_spot_below not in self.cave_map:
+            return True
+        return self.at_home(home_spot_below)
+
+    def system_complete(self):
+        for node in self.creatures:
+            if self.creatures[node]:
+                if not self.at_home(node):
+                    return False
+        return True
+
     def is_destination_allowed(self, start_point, end_point):
         """ checks to see if creatures is allowed to move to the destination """
         if self.creatures[end_point]:
@@ -135,59 +158,11 @@ class CaveSystem:
                         dists[y] = dists[x] + self.cave_map[x][y]
         if dists[end_point] == 999999999:
             return False
-        else:
-            return dists[end_point]*energy_consumption[self.creatures[start_point]]
-
-
-def done_moving(arrangement, position):
-    """
-    checks if a given position is done moving and is in its final resting place
-    """
-    column = position[0]
-    depth = position[1]
-    resident = arrangement[position]
-    if depth in LETTERS or column != resident:
-        return False
-    for location in arrangement.keys():
-        if location[0] == column and location[1] not in LETTERS:
-            if int(location[1]) > depth and arrangement[location] not in [None, column]:
-                return False
-    return True
-
-
-def path_to_home(arrangement, position):
-    # is home open?
-    resident = arrangement[position]
-    home_occupants = {}
-    for location in arrangement.keys():
-        if location[0] == resident and location[1] not in LETTERS:
-            home_occupants[location[1]] = arrangement[location]
-    if home_occupants["1"]:
-        return False
-    if home_occupants["2"] in LETTERS and home_occupants != resident:
-        return False
-    return True
-
-
-def can_move(arrangement, position):
-    resident = arrangement[position]
-    if not resident:
-        return False
-    elif done_moving(arrangement, position):
-        return False
-    neighbors = part_1_edges[position]
-    open_neighbors = []
-    for neighbor in neighbors:
-        if not arrangement[neighbor]:
-            open_neighbors.append(neighbor)
-    if len(open_neighbors)==0:
-        return False
-    in_hallway = not(position[0] in LETTERS and position[1] not in LETTERS)
-    if in_hallway:
-        return path_to_home(arrangement, position)
+        return dists[end_point]*energy_consumption[self.creatures[start_point]]
 
 
 def main(part_num=1):
+    """ main, part num alters which version of the problem is being solved """
     if part_num == 1:
         input_string = PART_1_INPUT
         edges = part_1_edges
@@ -196,7 +171,12 @@ def main(part_num=1):
         # edges = PART_2_EDGES
 
     locations = make_init_position_dict(input_string, edges)
-    new_cave = CaveSystem(edges, locations)
+    start_cave = CaveSystem(edges, locations)
+    cur_cave = start_cave
+    while True:
+        if cur_cave.system_complete():
+            break
+
 
 
 main(part_num=1)
