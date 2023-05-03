@@ -1,5 +1,6 @@
 """
-Revisting this problem a year later. Going to start from scratch with some different nomenclature and ideas.
+Revisiting this problem a year later. Going to start from
+scratch with some different nomenclature and ideas.
 
 input for part 1:
 #############
@@ -20,13 +21,13 @@ input for part 2:
 """
 
 # strings defining layout
-part_1_input ="#############" \
+PART_1_INPUT = "#############" \
               "#...........#" \
               "###B#C#A#D###" \
               "  #B#C#D#A#" \
               "  ######### "
 
-part_2_input ="#############" \
+PART_2_INPUT = "#############" \
               "#...........#" \
               "###B#C#A#D###" \
               "  #D#C#B#A#" \
@@ -36,8 +37,6 @@ part_2_input ="#############" \
 
 # how much it costs to move the various species
 energy_consumption = {"A": 1, "B": 10, "C": 100, "D": 1000}
-# toggle for part1 vs part2
-part1 = True
 
 # map of locations and how they are adjacent to other locations.
 # i am only including locations where creatures could come to rest
@@ -55,40 +54,49 @@ part_1_edges = {"A2": {"A1": 1}, "B2": {"B1": 1},
                 "BC": {"B1": 2, "AB": 2, "C1": 2, "CD": 2},
                 "CD": {"C1": 2, "BC": 2, "D1": 2, "R1": 2}
                 }
-# initiating a dictionary holding the initial positions of the critters
-part_1_locations = {i: None for i in part_1_edges.keys()}
-
-letters = "ABCD"
-num = "1"
-letter_i = 0
-for char in part_1_input:
-    if char in letters:
-        part_1_locations[letters[letter_i] + num] = char
-        letter_i = (letter_i+1) % 4
-        if letter_i == 0:
-            num = "2"
 
 
-def path_between(arrangement,p1,p2):
+def make_init_position_dict(input_string, edges):
+    """
+    input_string: the string that represents starting conditions
+    edges: hand typed representation of edges
+
+    returns: filled out dictionary of item locations
+    """
+    locations = {i: None for i in edges}
+    letters = "ABCD"
+    row = 0
+    col = 0
+    for char in input_string:
+        if char in letters:
+            locations[letters[col] + str(row+1)] = char
+            col += 1
+            if col == 4:
+                col = 0
+                row += 1
+    return locations
+
+
+def path_between(arrangement, edges, p1, p2):
     dists = {p2: 9999999999}
     todo = []
-    for n in part_1_edges[p1].keys():
+    for n in edges[p1].keys():
         if not arrangement[n]:
             todo.append(n)
-            dists[n]=part_1_edges[p1][n]
-    while len(todo)>0:
+            dists[n] = edges[p1][n]
+    while len(todo) > 0:
         n = todo.pop(0)
-        for m in part_1_edges[n]:
+        for m in edges[n]:
             if not arrangement[m]:
                 if m not in dists.keys():
-                    dists[m] = dists[n]+part_1_edges[n][m]
+                    dists[m] = dists[n]+edges[n][m]
                     todo.append(m)
-                elif dists[n]+part_1_edges[n][m]<dists[m]:
-                    dists[m] = dists[n]+part_1_edges[n][m]
+                elif dists[n]+edges[n][m]<dists[m]:
+                    dists[m] = dists[n] + edges[n][m]
     if dists[p2] == 9999999999:
         return False
     else:
-        return dists[p2]
+        return dists[p2]*energy_consumption[arrangement[p1]]
 
 
 def done_moving(arrangement, position):
@@ -102,7 +110,7 @@ def done_moving(arrangement, position):
         return False
     for location in arrangement.keys():
         if location[0] == column and location[1] not in letters:
-            if int(location[1]) > depth and arrangement[location] not in [None,column]:
+            if int(location[1]) > depth and arrangement[location] not in [None, column]:
                 return False
     return True
 
@@ -112,12 +120,13 @@ def path_to_home(arrangement, position):
     resident = arrangement[position]
     home_occupants = {}
     for location in arrangement.keys():
-        if location[0]==resident and location[1] not in letters:
+        if location[0] == resident and location[1] not in letters:
             home_occupants[location[1]] = arrangement[location]
     if home_occupants["1"]:
         return False
     if home_occupants["2"] in letters and home_occupants != resident:
         return False
+    return True
 
 
 def can_move(arrangement, position):
@@ -138,7 +147,15 @@ def can_move(arrangement, position):
         return path_to_home(arrangement, position)
 
 
+def main(part_num=1):
+    if part_num == 1:
+        input_string = PART_1_INPUT
+        edges  = part_1_edges
+    else:
+        input_string = PART_2_INPUT
+        # edges = PART_2_EDGES
+
+    locations = make_init_position_dict(input_string, edges)
 
 
-
-
+main(part_num=1)
